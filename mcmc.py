@@ -2,12 +2,7 @@ import numpy as np
 import emcee
 
 def chi2_lnprob(data, model,sigma2):
-    np.sum((data - model) ** 2 / sigma2 + np.log(sigma2))
-    def log_likelihood(theta, x, y, yerr):
-        m, b, log_f = theta
-        model = m * x + b
-        sigma2 = yerr2 + model2 * np.exp(2 * log_f)
-        return -0.5 * 
+        return -0.5 * np.sum((data - model) ** 2 / sigma2 + np.log(sigma2))
 def lnprob(parameter_values,root_dir, parameter_dict, constants_dict, line_list):
     """
     Calculate the log-probability of the model given the parameters and data.
@@ -47,8 +42,8 @@ def lnprob(parameter_values,root_dir, parameter_dict, constants_dict, line_list)
         if (simulation_dict[key] < key_bound[0]) or (simulation_dict[key] > key_bound[1]):
             #print(key + " out of bounds")
             return -np.inf
-    model_chi2=
-    return chi2 * -0.5
+
+    return chi2_lnprob(data, model,sigma2)
 
 def MCMC(write_csv, root_dir,constants_dict, param_dict, obs_list, #pool,
         nsteps=3000,nwalkers=40, restart=False, read_csv = None):
