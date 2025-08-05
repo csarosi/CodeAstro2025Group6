@@ -38,21 +38,32 @@ class MCMCWrapper:
     sample : array_like of bool, optional
         Boolean array indicating which parameters to sample. Default is to sample all parameters.
     """
-    
-    def __init__(self, model_function, data, x, parnames, initial_values,
-                 prior_bounds, noise=1.0, sample=None):
+
+    def __init__(self, model_function, data, x, varnames, varvalues, priortypes,
+                 priorvars, sampleparams = None, noise=1.0):
+        
         self.model_function = model_function
         self.data = np.array(data)
         self.x = np.array(x)
-        self.parnames = parnames
-        self.p0 = np.array(initial_values)
-        self.bounds = np.array(prior_bounds)
-        self.ndim = len(parnames)
-        self.npars = len(parnames)
-        self.noise = noise * np.ones_like(self.data)
-        self.sample = np.ones(len(parnames), dtype=bool) if sample is None else sample
+        
+        self.sampleparams = np.ones(len(varnames), dtype=bool) if sampleparams is None else np.array(sampleparams)
+        assert len(varnames) == len(varvalues) == len(sampleparams), "your parameter inputs are not all the same length!"
+        
+        varnames =  np.array(varnames)
+        self.parnames = varnames[self.sampleparams]
+        
+        self.parorder = np.concatenate((np.argwhere(self.sampleparams),np.argwhere(~self.sampleparams)))
 
-        assert len(self.p0) == len(self.bounds) == self.ndim, "your parameter inputs are not all the same length!"
+        varvalues =  np.array(varvalues)
+        self.fixedvals = varvalues[~self.sampleparams]
+        self.p0 = varvalues[self.sampleparams]
+  
+        self.priortypes = priortypes
+        self.priorvars = priorvars
+
+        self.npars = len(self.parnames)
+        self.noise = noise * np.ones_like(self.data)
+        assert len(self.parnames) == len(self.priortypes) == len(self.priorvars), "You don't have the right number of priors your parameters!"
 
     def log_prior(self, params):
         """
@@ -70,8 +81,8 @@ class MCMCWrapper:
         """
         logP = 0
         for i in range(self.npars):
-            if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
-                return -np.inf
+            if (self.p0[i] < self.priorvars[i][0]) | (self.p0[i] > self.priorvars[i][1]):
+                logP = -np.inf
         return logP
 
     def log_likelihood(self, params):
@@ -88,7 +99,7 @@ class MCMCWrapper:
         float
             The log-likelihood assuming Gaussian noise.
         """
-        y_model = self.model_function(params, self.x)
+        y_model = self.model_function(np.concatenate((params, self.fixedvals))[self.parorder], self.x)
         chi2 = np.sum((self.data - y_model) ** 2 / self.noise**2)
         return -0.5 * chi2
 
@@ -128,8 +139,8 @@ class MCMCWrapper:
         sampler : emcee.EnsembleSampler
             The MCMC sampler object containing the full chain of samples.
         """
-        initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.ndim)
-        mcmc_sampler = emcee.EnsembleSampler(nwalkers, self.ndim, self.log_posterior)
+        initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.npars)
+        mcmc_sampler = emcee.EnsembleSampler(nwalkers, self.npars, self.log_posterior)
         mcmc_sampler.run_mcmc(initial_pos, nsteps, progress=True)
         self.nwalkers = nwalkers
         self.nsteps = nsteps
@@ -142,7 +153,7 @@ class MCMCWrapper:
             print("you can't plot your walkers yet, you still need to call run_mcmc!")
             return
         fig, axes = plt.subplots(self.npars+1, figsize=(10, 7), sharex=True)
-        labels = self.parnames
+        labels = list(self.parnames)
         labels.append("log prob")
         chain_pars = self.mcmc_sampler.get_chain(discard = discard)
         chain_log_probs = self.mcmc_sampler.get_log_prob(discard=discard)
