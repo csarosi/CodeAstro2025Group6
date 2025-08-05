@@ -138,7 +138,9 @@ class MCMCWrapper:
         return mcmc_sampler
     
     def walker_plot(self, discard = 200):
-
+        if not hasattr(self, 'mcmc_sampler'):
+            print("you can't plot your walkers yet, you still need to call run_mcmc!")
+            return
         fig, axes = plt.subplots(self.npars+1, figsize=(10, 7), sharex=True)
         labels = self.parnames
         labels.append("log prob")
