@@ -189,6 +189,17 @@ class MCMCWrapper:
         self.nwalkers = nwalkers
         self.nsteps = nsteps
         self.mcmc_sampler = mcmc_sampler
+        samples = mcmc_sampler.get_chain(discard=200, thin=15, flat=True)
+
+        medians = np.median(samples, axis=0)
+        lower = np.percentile(samples, 16, axis=0)
+        upper = np.percentile(samples, 84, axis=0)
+
+        for i, name in enumerate(self.parnames):
+            med = medians[i]
+            lo = med - lower[i]
+            hi = upper[i] - med
+            print(f"{name}: {med:.3f} (+{hi:.3f}/-{lo:.3f})")
         
         return mcmc_sampler
     
