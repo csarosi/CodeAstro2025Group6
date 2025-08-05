@@ -125,7 +125,7 @@ class MCMCWrapper:
 
         Returns
         -------
-        sampler : emcee.EnsembleSampler
+        mcmc_sampler : emcee.EnsembleSampler
             The MCMC sampler object containing the full chain of samples.
         """
         initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.ndim)
