@@ -31,6 +31,9 @@ class MCMCWrapper:
         
     prior_bounds : array_like
         List of [min, max] pairs for each parameter, specifying uniform prior bounds.
+        If priortype='uniform', interpreted as upper and lower bounds for each parameter
+        If priortype='normal', interpreted as median and standard deviation of each parameter's gaussian prior
+        If priortype='gamma', interpreted as the shape parameter and the scale parameter of a gamma distribution
         
     noise : float or array_like, optional
         The standard deviation of the noise in the data. If a single float is provided, 
@@ -38,6 +41,9 @@ class MCMCWrapper:
         
     sample : array_like of bool, optional
         Boolean array indicating which parameters to sample. Default is to sample all parameters.
+    
+    priortype : string, optional (default='uniform')
+        string denoting functional form assumed for the priors (options: 'uniform', 'normal', 'gamma')
     """
     
     def __init__(self, model_function, data, x, parnames, initial_values,
@@ -99,7 +105,7 @@ class MCMCWrapper:
             def log_prior(params):
                 """
                 Computes the log-prior probability of the parameters assuming normal priors.
-                Gamma function prior assuming alpha=bounds[0] and theta=bounds[1]
+                Gamma function prior assuming shape parameter=bounds[0] and scale parameter=bounds[1]
 
                 Parameters
                 ----------
@@ -118,31 +124,10 @@ class MCMCWrapper:
                 return logP
 
         else:
-            raise Exception("The two options for priortype are 'uniform' and 'normal'")
+            raise Exception("The three options for priortype are 'uniform', 'normal', and 'gamma'")
         self.log_prior = log_prior
 
         assert len(self.p0) == len(self.bounds) == self.ndim, "your parameter inputs are not all the same length!"
-
-    # def log_prior(self, params):
-    #     """
-    #     Computes the log-prior probability of the parameters assuming uniform priors.
-
-    #     Parameters
-    #     ----------
-    #     params : array_like
-    #         Array of parameter values.
-
-    #     Returns
-    #     -------
-    #     float
-    #         The log-prior probability. Returns -np.inf if any parameter is outside its bounds.
-    #     """
-    #     # logP = 0
-    #     # for i in range(self.npars):
-    #     #     if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
-    #     #         return -np.inf
-    #     # return logP
-    #     return log_prior_init(self, params)
 
     def log_likelihood(self, params):
         """
