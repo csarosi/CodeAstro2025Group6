@@ -1,6 +1,7 @@
 import numpy as np
 import emcee
 import matplotlib.pyplot as plt
+from scipy.special import gamma as gamma
 
 class MCMCWrapper:
     """
@@ -30,6 +31,9 @@ class MCMCWrapper:
         
     prior_bounds : array_like
         List of [min, max] pairs for each parameter, specifying uniform prior bounds.
+        If priortype='uniform', interpreted as upper and lower bounds for each parameter
+        If priortype='normal', interpreted as median and standard deviation of each parameter's gaussian prior
+        If priortype='gamma', interpreted as the shape parameter and the scale parameter of a gamma distribution
         
     noise : float or array_like, optional
         The standard deviation of the noise in the data. If a single float is provided, 
@@ -37,10 +41,13 @@ class MCMCWrapper:
         
     sample : array_like of bool, optional
         Boolean array indicating which parameters to sample. Default is to sample all parameters.
+    
+    priortype : string, optional (default='uniform')
+        string denoting functional form assumed for the priors (options: 'uniform', 'normal', 'gamma')
     """
     
     def __init__(self, model_function, data, x, parnames, initial_values,
-                 prior_bounds, noise=1.0, sample=None):
+                 prior_bounds, noise=1.0, sample=None, priortype='uniform'):
         self.model_function = model_function
         self.data = np.array(data)
         self.x = np.array(x)
@@ -51,28 +58,76 @@ class MCMCWrapper:
         self.npars = len(parnames)
         self.noise = noise * np.ones_like(self.data)
         self.sample = np.ones(len(parnames), dtype=bool) if sample is None else sample
+        self.priortype = priortype
+
+        if self.priortype=='uniform':
+            def log_prior(params):
+                """
+                Computes the log-prior probability of the parameters assuming uniform priors.
+
+                Parameters
+                ----------
+                params : array_like
+                    Array of parameter values.
+
+                Returns
+                -------
+                float
+                    The log-prior probability. Returns -np.inf if any parameter is outside its bounds.
+                """
+                logP = 0
+                for i in range(self.npars):
+                    if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
+                        return -np.inf
+                return logP
+        elif self.priortype=='normal':
+            def log_prior(params):
+                """
+                Computes the log-prior probability of the parameters assuming normal priors.
+                Assumes median=bounds[0] and standard deviation=bounds[1]
+
+                Parameters
+                ----------
+                params : array_like
+                    Array of parameter values.
+
+                Returns
+                -------
+                float
+                    The log-prior probability.
+                """
+                logPs = [1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
+                         np.exp((params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2)) \
+                            for i in range(self.ndim)]
+                logP = np.sum(np.log(logPs))
+                return logP
+        elif self.priortype=='gamma':
+            def log_prior(params):
+                """
+                Computes the log-prior probability of the parameters assuming normal priors.
+                Gamma function prior assuming shape parameter=bounds[0] and scale parameter=bounds[1]
+
+                Parameters
+                ----------
+                params : array_like
+                    Array of parameter values.
+
+                Returns
+                -------
+                float
+                    The log-prior probability.
+                """
+                logPs = [1/(gamma(self.bounds[i][0]) * self.bounds[i][1]**self.bounds[i][0]) * \
+                         params[i]**(self.bounds[i][0]-1) * np.exp(-params[i]/self.bounds[i][1])\
+                              for i in range(self.ndim)]
+                logP = np.sum(np.log(logPs))
+                return logP
+
+        else:
+            raise Exception("The three options for priortype are 'uniform', 'normal', and 'gamma'")
+        self.log_prior = log_prior
 
         assert len(self.p0) == len(self.bounds) == self.ndim, "your parameter inputs are not all the same length!"
-
-    def log_prior(self, params):
-        """
-        Computes the log-prior probability of the parameters assuming uniform priors.
-
-        Parameters
-        ----------
-        params : array_like
-            Array of parameter values.
-
-        Returns
-        -------
-        float
-            The log-prior probability. Returns -np.inf if any parameter is outside its bounds.
-        """
-        logP = 0
-        for i in range(self.npars):
-            if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
-                return -np.inf
-        return logP
 
     def log_likelihood(self, params):
         """
