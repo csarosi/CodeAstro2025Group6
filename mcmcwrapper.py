@@ -137,24 +137,72 @@ class MCMCWrapper:
         
         return mcmc_sampler
     
-    def walker_plot(self, discard = 200):
-        if not hasattr(self, 'mcmc_sampler'):
-            print("you can't plot your walkers yet, you still need to call run_mcmc!")
-            return
-        fig, axes = plt.subplots(self.npars+1, figsize=(10, 7), sharex=True)
-        labels = self.parnames
-        labels.append("log prob")
-        chain_pars = self.mcmc_sampler.get_chain(discard = discard)
-        chain_log_probs = self.mcmc_sampler.get_log_prob(discard=discard)
-        chain = np.dstack((chain_pars,chain_log_probs))
-        for i in range(self.npars+1):
-            ax = axes[i]
-            ax.fill_between(range(0,len(chain[:, :, i])),
-                            np.percentile(chain[:, :, i], 16, axis=1),
-                            np.percentile(chain[:, :, i], 84, axis=1), color = 'k', alpha = 0.5)
-            ax.plot(chain[:, :, i], alpha=0.2)
-            ax.plot(np.median(chain[:, :, i], axis=1), alpha=1, color = 'k')
-            ax.set_ylabel(labels[i])
-        axes[-1].set_xlabel("Step")
-        plt.tight_layout()
-        plt.show()
+    def walker_plot(self, discard=200):
+        """
+        Plot the evolution of MCMC walker chains for each parameter and the log-probability.
+
+        This function generates a diagnostic plot showing how each parameter and the log-probability
+        evolve over the course of the MCMC run. The plot includes:
+
+        - Light-colored traces for all walkers
+        - A black line showing the median value at each step
+        - A shaded region between the 16th and 84th percentiles
+
+        Parameters
+        ----------
+        discard : int, optional
+            Number of initial steps to discard from the chain as burn-in. Default is 200.
+
+        Notes
+        -----
+        This method assumes that `self.sampler` has been defined by calling `run_mcmc` beforehand.
+        The number of subplots is equal to the number of model parameters plus one for the 
+        log-probability. The function displays the plot using `plt.show()`.
+        """
+
+    # Create a figure with one subplot for each parameter plus one for log-probability
+    fig, axes = plt.subplots(self.npars + 1, figsize=(10, 7), sharex=True)
+
+    # Create a list of labels: parameter names + one for log-probability
+    labels = self.parnames
+    labels.append("log prob")  # This mutates self.parnames (not ideal, but kept as-is)
+
+    # Extract the parameter chains, discarding the initial burn-in steps
+    chain_pars = self.sampler.get_chain(discard=discard)
+
+    # Extract the log-probability chain, also discarding burn-in
+    chain_log_probs = self.sampler.get_log_prob(discard=discard)
+
+    # Stack parameters and log-probability together into a 3D array
+    # Shape: (steps, walkers, npars + 1)
+    chain = np.dstack((chain_pars, chain_log_probs))
+
+    # Loop over each parameter (and log-probability) to plot
+    for i in range(self.npars + 1):
+        ax = axes[i]
+
+        # Plot a shaded region representing the 16th–84th percentile range
+        ax.fill_between(
+            range(0, len(chain[:, :, i])),
+            np.percentile(chain[:, :, i], 16, axis=1),
+            np.percentile(chain[:, :, i], 84, axis=1),
+            color='k', alpha=0.5
+        )
+
+        # Plot all walker chains with low opacity
+        ax.plot(chain[:, :, i], alpha=0.2)
+
+        # Plot the median value of the walkers at each step
+        ax.plot(np.median(chain[:, :, i], axis=1), alpha=1, color='k')
+
+        # Label the y-axis with the parameter name or "log prob"
+        ax.set_ylabel(labels[i])
+
+    # Label the x-axis of the bottom plot
+    axes[-1].set_xlabel("Step")
+
+    # Adjust layout to prevent overlap
+    plt.tight_layout()
+
+    # Display the figure
+    plt.show()
