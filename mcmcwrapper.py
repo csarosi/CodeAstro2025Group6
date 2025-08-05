@@ -223,10 +223,10 @@ class MCMCWrapper:
         labels.append("log prob")  # This mutates self.parnames (not ideal, but kept as-is)
     
         # Extract the parameter chains, discarding the initial burn-in steps
-        chain_pars = self.sampler.get_chain(discard=discard)
+        chain_pars = self.mcmc_sampler.get_chain(discard=discard)
     
         # Extract the log-probability chain, also discarding burn-in
-        chain_log_probs = self.sampler.get_log_prob(discard=discard)
+        chain_log_probs = self.mcmc_sampler.get_log_prob(discard=discard)
     
         # Stack parameters and log-probability together into a 3D array
         # Shape: (steps, walkers, npars + 1)
@@ -266,16 +266,26 @@ class MCMCWrapper:
             """
             Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
             
-            Parameters:
-            -----------
-            discard : int
-                Number of initial steps (burn-in) to discard from the MCMC chain.
+            Parameters
+            ----------
+            discard : int, optional
+                Number of initial MCMC steps to discard as burn-in. Default is 200.
+    
+            Notes
+            -----
+            - This function flattens the MCMC chains across all walkers after discarding burn-in.
+            - Requires the `corner` library.
+            - Assumes that `self.mcmc_sampler` is the emcee sampler object created by `run_mcmc`.
             """
+            # Flatten the chain (combine steps and walkers), discarding the burn-in
             samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
+            # Create the corner plot showing marginal and joint posteriors
             figure = corner.corner(
-                    samples,
-                    quantiles=[0.16, 0.5, 0.84],
-                    labels = self.parnames,
-                    show_titles=True,
-                    title_kwargs={"fontsize": 16},
-                    label_kwargs={"fontsize": 16} )
+                    samples,                       
+                    quantiles=[0.16, 0.5, 0.84],    # Set the quantiles
+                    labels = self.parnames,         # Label each parameter
+                    show_titles=True,               # Show titles in each panel
+                    title_kwargs={"fontsize": 16},  # Font size for titles
+                    label_kwargs={"fontsize": 16} ) # Font size for axis labels
+
+    
