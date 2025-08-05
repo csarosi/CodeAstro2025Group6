@@ -160,49 +160,67 @@ class MCMCWrapper:
         log-probability. The function displays the plot using `plt.show()`.
         """
 
-    # Create a figure with one subplot for each parameter plus one for log-probability
-    fig, axes = plt.subplots(self.npars + 1, figsize=(10, 7), sharex=True)
-
-    # Create a list of labels: parameter names + one for log-probability
-    labels = self.parnames
-    labels.append("log prob")  # This mutates self.parnames (not ideal, but kept as-is)
-
-    # Extract the parameter chains, discarding the initial burn-in steps
-    chain_pars = self.sampler.get_chain(discard=discard)
-
-    # Extract the log-probability chain, also discarding burn-in
-    chain_log_probs = self.sampler.get_log_prob(discard=discard)
-
-    # Stack parameters and log-probability together into a 3D array
-    # Shape: (steps, walkers, npars + 1)
-    chain = np.dstack((chain_pars, chain_log_probs))
-
-    # Loop over each parameter (and log-probability) to plot
-    for i in range(self.npars + 1):
-        ax = axes[i]
-
-        # Plot a shaded region representing the 16th–84th percentile range
-        ax.fill_between(
-            range(0, len(chain[:, :, i])),
-            np.percentile(chain[:, :, i], 16, axis=1),
-            np.percentile(chain[:, :, i], 84, axis=1),
-            color='k', alpha=0.5
-        )
-
-        # Plot all walker chains with low opacity
-        ax.plot(chain[:, :, i], alpha=0.2)
-
-        # Plot the median value of the walkers at each step
-        ax.plot(np.median(chain[:, :, i], axis=1), alpha=1, color='k')
-
-        # Label the y-axis with the parameter name or "log prob"
-        ax.set_ylabel(labels[i])
-
-    # Label the x-axis of the bottom plot
-    axes[-1].set_xlabel("Step")
-
-    # Adjust layout to prevent overlap
-    plt.tight_layout()
-
-    # Display the figure
-    plt.show()
+        # Create a figure with one subplot for each parameter plus one for log-probability
+        fig, axes = plt.subplots(self.npars + 1, figsize=(10, 7), sharex=True)
+    
+        # Create a list of labels: parameter names + one for log-probability
+        labels = self.parnames
+        labels.append("log prob")  # This mutates self.parnames (not ideal, but kept as-is)
+    
+        # Extract the parameter chains, discarding the initial burn-in steps
+        chain_pars = self.sampler.get_chain(discard=discard)
+    
+        # Extract the log-probability chain, also discarding burn-in
+        chain_log_probs = self.sampler.get_log_prob(discard=discard)
+    
+        # Stack parameters and log-probability together into a 3D array
+        # Shape: (steps, walkers, npars + 1)
+        chain = np.dstack((chain_pars, chain_log_probs))
+    
+        # Loop over each parameter (and log-probability) to plot
+        for i in range(self.npars + 1):
+            ax = axes[i]
+    
+            # Plot a shaded region representing the 16th–84th percentile range
+            ax.fill_between(
+                range(0, len(chain[:, :, i])),
+                np.percentile(chain[:, :, i], 16, axis=1),
+                np.percentile(chain[:, :, i], 84, axis=1),
+                color='k', alpha=0.5
+            )
+    
+            # Plot all walker chains with low opacity
+            ax.plot(chain[:, :, i], alpha=0.2)
+    
+            # Plot the median value of the walkers at each step
+            ax.plot(np.median(chain[:, :, i], axis=1), alpha=1, color='k')
+    
+            # Label the y-axis with the parameter name or "log prob"
+            ax.set_ylabel(labels[i])
+    
+        # Label the x-axis of the bottom plot
+        axes[-1].set_xlabel("Step")
+    
+        # Adjust layout to prevent overlap
+        plt.tight_layout()
+    
+        # Display the figure
+        plt.show()
+    
+        def corner_plot(self, discard=200):
+        """
+        Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
+        
+        Parameters:
+        -----------
+        discard : int
+            Number of initial steps (burn-in) to discard from the MCMC chain.
+        """
+        samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
+        figure = corner.corner(
+                samples,
+                quantiles=[0.16, 0.5, 0.84],
+                labels = self.parnames,
+                show_titles=True,
+                title_kwargs={"fontsize": 16},
+                label_kwargs={"fontsize": 16} )
