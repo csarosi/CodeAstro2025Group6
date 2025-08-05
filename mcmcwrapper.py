@@ -262,30 +262,30 @@ class MCMCWrapper:
         # Display the figure
         plt.show()
     
-        def corner_plot(self, discard=200):
-            """
-            Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
-            
-            Parameters
-            ----------
-            discard : int, optional
-                Number of initial MCMC steps to discard as burn-in. Default is 200.
-    
-            Notes
-            -----
-            - This function flattens the MCMC chains across all walkers after discarding burn-in.
-            - Requires the `corner` library.
-            - Assumes that `self.mcmc_sampler` is the emcee sampler object created by `run_mcmc`.
-            """
-            # Flatten the chain (combine steps and walkers), discarding the burn-in
-            samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
-            # Create the corner plot showing marginal and joint posteriors
-            figure = corner.corner(
-                    samples,                       
-                    quantiles=[0.16, 0.5, 0.84],    # Set the quantiles
-                    labels = self.parnames,         # Label each parameter
-                    show_titles=True,               # Show titles in each panel
-                    title_kwargs={"fontsize": 16},  # Font size for titles
-                    label_kwargs={"fontsize": 16} ) # Font size for axis labels
+    def corner_plot(self, discard=200):
+        """
+        Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
+        
+        Parameters
+        ----------
+        discard : int, optional
+            Number of initial MCMC steps to discard as burn-in. Default is 200.
+
+        Notes
+        -----
+        - This function flattens the MCMC chains across all walkers after discarding burn-in.
+        - Requires the `corner` library.
+        - Assumes that `self.mcmc_sampler` is the emcee sampler object created by `run_mcmc`.
+        """
+        # Flatten the chain (combine steps and walkers), discarding the burn-in
+        samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
+        # Create the corner plot showing marginal and joint posteriors
+        figure = corner.corner(
+                samples,                       
+                quantiles=[0.16, 0.5, 0.84],    # Set the quantiles
+                labels = self.parnames,         # Label each parameter
+                show_titles=True,               # Show titles in each panel
+                title_kwargs={"fontsize": 12},  # Font size for titles
+                label_kwargs={"fontsize": 16} ) # Font size for axis labels
 
     
