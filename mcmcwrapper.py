@@ -208,19 +208,19 @@ class MCMCWrapper:
         plt.show()
     
         def corner_plot(self, discard=200):
-        """
-        Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
-        
-        Parameters:
-        -----------
-        discard : int
-            Number of initial steps (burn-in) to discard from the MCMC chain.
-        """
-        samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
-        figure = corner.corner(
-                samples,
-                quantiles=[0.16, 0.5, 0.84],
-                labels = self.parnames,
-                show_titles=True,
-                title_kwargs={"fontsize": 16},
-                label_kwargs={"fontsize": 16} )
+            """
+            Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
+            
+            Parameters:
+            -----------
+            discard : int
+                Number of initial steps (burn-in) to discard from the MCMC chain.
+            """
+            samples = self.mcmc_sampler.get_chain(discard = discard, flat=True)
+            figure = corner.corner(
+                    samples,
+                    quantiles=[0.16, 0.5, 0.84],
+                    labels = self.parnames,
+                    show_titles=True,
+                    title_kwargs={"fontsize": 16},
+                    label_kwargs={"fontsize": 16} )
