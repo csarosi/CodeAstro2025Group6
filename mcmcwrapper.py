@@ -129,21 +129,21 @@ class MCMCWrapper:
             The MCMC sampler object containing the full chain of samples.
         """
         initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.ndim)
-        sampler = emcee.EnsembleSampler(nwalkers, self.ndim, self.log_posterior)
-        sampler.run_mcmc(initial_pos, nsteps, progress=True)
+        mcmc_sampler = emcee.EnsembleSampler(nwalkers, self.ndim, self.log_posterior)
+        mcmc_sampler.run_mcmc(initial_pos, nsteps, progress=True)
         self.nwalkers = nwalkers
         self.nsteps = nsteps
-        self.sampler = sampler
+        self.mcmc_sampler = mcmc_sampler
         
-        return sampler
+        return mcmc_sampler
     
     def walker_plot(self, discard = 200):
 
         fig, axes = plt.subplots(self.npars+1, figsize=(10, 7), sharex=True)
         labels = self.parnames
         labels.append("log prob")
-        chain_pars = self.sampler.get_chain(discard = discard)
-        chain_log_probs = self.sampler.get_log_prob(discard=discard)
+        chain_pars = self.mcmc_sampler.get_chain(discard = discard)
+        chain_log_probs = self.mcmc_sampler.get_log_prob(discard=discard)
         chain = np.dstack((chain_pars,chain_log_probs))
         for i in range(self.npars+1):
             ax = axes[i]
