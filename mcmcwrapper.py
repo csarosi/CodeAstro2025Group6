@@ -1,5 +1,6 @@
 import numpy as np
 import emcee
+import matplotlib.pyplot as plt
 
 class MCMCWrapper:
     """
@@ -130,4 +131,28 @@ class MCMCWrapper:
         initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.ndim)
         sampler = emcee.EnsembleSampler(nwalkers, self.ndim, self.log_posterior)
         sampler.run_mcmc(initial_pos, nsteps, progress=True)
+        self.nwalkers = nwalkers
+        self.nsteps = nsteps
+        self.sampler = sampler
+        
         return sampler
+    
+    def walker_plot(self, discard = 200):
+
+        fig, axes = plt.subplots(self.npars+1, figsize=(10, 7), sharex=True)
+        labels = self.parnames
+        labels.append("log prob")
+        chain_pars = self.sampler.get_chain(discard = discard)
+        chain_log_probs = self.sampler.get_log_prob(discard=discard)
+        chain = np.dstack((chain_pars,chain_log_probs))
+        for i in range(self.npars+1):
+            ax = axes[i]
+            ax.fill_between(range(0,len(chain[:, :, i])),
+                            np.percentile(chain[:, :, i], 16, axis=1),
+                            np.percentile(chain[:, :, i], 84, axis=1), color = 'k', alpha = 0.5)
+            ax.plot(chain[:, :, i], alpha=0.2)
+            ax.plot(np.median(chain[:, :, i], axis=1), alpha=1, color = 'k')
+            ax.set_ylabel(labels[i])
+        axes[-1].set_xlabel("Step")
+        plt.tight_layout()
+        plt.show()
