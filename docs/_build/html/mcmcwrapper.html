@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emcee wrapper utilities &mdash; emcee_rapper v0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=34cd777e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            emcee_rapper
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">emcee wrapper utilities</a><ul>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper</span></code></a><ul>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper.corner_plot"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper.corner_plot()</span></code></a></li>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper.log_likelihood"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper.log_likelihood()</span></code></a></li>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper.log_posterior"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper.log_posterior()</span></code></a></li>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper.run_mcmc"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper.run_mcmc()</span></code></a></li>
+<li><a class="reference internal" href="#mcmcwrapper.MCMCWrapper.walker_plot"><code class="docutils literal notranslate"><span class="pre">MCMCWrapper.walker_plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">emcee_rapper</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">emcee wrapper utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mcmcwrapper.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="emcee-wrapper-utilities">
+<span id="mcmcwrapper"></span><h1>emcee wrapper utilities<a class="headerlink" href="#emcee-wrapper-utilities" title="Link to this heading"></a></h1>
+<p>Class used to set up and run emcee fits.</p>
+<dl class="py class" id="module-mcmcwrapper">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mcmcwrapper.</span></span><span class="sig-name descname"><span class="pre">MCMCWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior_bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priortype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper" title="Link to this definition"></a></dt>
+<dd><p>A wrapper class for performing Markov Chain Monte Carlo (MCMC) sampling
+using the <cite>emcee</cite> library.</p>
+<p>This class allows users to estimate model parameters based on observed data,
+given a model function, priors, and optional noise estimates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_function</strong> (<em>callable</em>) – A function that takes a parameter vector and an array of independent
+variable(s), and returns the model output.</p></li>
+<li><p><strong>data</strong> (<em>array_like</em>) – Observed data to which the model will be fit.</p></li>
+<li><p><strong>x</strong> (<em>array_like</em>) – Independent variable(s) corresponding to the observed data.</p></li>
+<li><p><strong>parnames</strong> (<em>list</em><em> of </em><em>str</em>) – Names of the parameters to be sampled.</p></li>
+<li><p><strong>initial_values</strong> (<em>array_like</em>) – Initial guesses for the model parameters.</p></li>
+<li><p><strong>prior_bounds</strong> (<em>array_like</em>) – List of [min, max] pairs for each parameter, specifying uniform prior bounds.
+If priortype=’uniform’, interpreted as upper and lower bounds for each parameter
+If priortype=’normal’, interpreted as median and standard deviation of each parameter’s gaussian prior
+If priortype=’gamma’, interpreted as the shape parameter and the scale parameter of a gamma distribution</p></li>
+<li><p><strong>noise</strong> (<em>float</em><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – The standard deviation of the noise in the data. If a single float is provided,
+it is broadcast to match the shape of <cite>data</cite>. Default is 1.0.</p></li>
+<li><p><strong>sample</strong> (<em>array_like</em><em> of </em><em>bool</em><em>, </em><em>optional</em>) – Boolean array indicating which parameters to sample. Default is to sample all parameters.</p></li>
+<li><p><strong>priortype</strong> (<em>string OR list</em><em> of </em><em>strings</em><em>, </em><em>optional</em><em> (</em><em>default='uniform'</em><em>)</em>) – string denoting functional form assumed for the priors (options: ‘uniform’, ‘normal’, ‘gamma’)
+if list, one of ‘uniform’, ‘normal’, and ‘gamma’ for each parameter.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper.corner_plot">
+<span class="sig-name descname"><span class="pre">corner_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper.corner_plot" title="Link to this definition"></a></dt>
+<dd><p>Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>discard</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of initial MCMC steps to discard as burn-in. Default is 200.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function flattens the MCMC chains across all walkers after discarding burn-in.</p></li>
+<li><p>Requires the <cite>corner</cite> library.</p></li>
+<li><p>Assumes that <cite>self.mcmc_sampler</cite> is the emcee sampler object created by <cite>run_mcmc</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper.log_likelihood">
+<span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper.log_likelihood" title="Link to this definition"></a></dt>
+<dd><p>Computes the log-likelihood of the data given the model parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>array_like</em>) – Array of parameter values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The log-likelihood assuming Gaussian noise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper.log_posterior">
+<span class="sig-name descname"><span class="pre">log_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper.log_posterior" title="Link to this definition"></a></dt>
+<dd><p>Computes the log-posterior probability of the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>array_like</em>) – Array of parameter values.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The log-posterior probability (log-prior + log-likelihood).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper.run_mcmc">
+<span class="sig-name descname"><span class="pre">run_mcmc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nwalkers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper.run_mcmc" title="Link to this definition"></a></dt>
+<dd><p>Runs the MCMC sampler using the <cite>emcee</cite> EnsembleSampler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nwalkers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of walkers to use in the ensemble. Default is 50.</p></li>
+<li><p><strong>nsteps</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of MCMC steps for each walker. Default is 1000.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>mcmc_sampler</strong> – The MCMC sampler object containing the full chain of samples.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>emcee.EnsembleSampler</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mcmcwrapper.MCMCWrapper.walker_plot">
+<span class="sig-name descname"><span class="pre">walker_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#mcmcwrapper.MCMCWrapper.walker_plot" title="Link to this definition"></a></dt>
+<dd><p>Plot the evolution of MCMC walker chains for each parameter and the log-probability.</p>
+<p>This function generates a diagnostic plot showing how each parameter and the log-probability
+evolve over the course of the MCMC run. The plot includes:</p>
+<ul class="simple">
+<li><p>Light-colored traces for all walkers</p></li>
+<li><p>A black line showing the median value at each step</p></li>
+<li><p>A shaded region between the 16th and 84th percentiles</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>discard</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of initial steps to discard from the chain as burn-in. Default is 200.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method assumes that <cite>self.sampler</cite> has been defined by calling <cite>run_mcmc</cite> beforehand.
+The number of subplots is equal to the number of model parameters plus one for the
+log-probability. The function displays the plot using <cite>plt.show()</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Cat Sarosi, Thomas Kennedy, Andres Sixtos, Anthony Arenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
