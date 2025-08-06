@@ -1,0 +1,3 @@
+emcee
+numpy
+corner
