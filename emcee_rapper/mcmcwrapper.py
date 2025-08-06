@@ -18,29 +18,29 @@ class MCMCWrapper:
         A function that takes a parameter vector and an array of independent 
         variable(s), and returns the model output.
         
-    data : array_like
+    data : array
         Observed data to which the model will be fit.
         
-    x : array_like
+    x : array
         Independent variable(s) corresponding to the observed data.
         
     parnames : list of str
         Names of the parameters to be sampled.
         
-    initial_values : array_like
+    initial_values : array
         Initial guesses for the model parameters.
         
-    prior_bounds : array_like
+    prior_bounds : array
         List of [min, max] pairs for each parameter, specifying uniform prior bounds.
         If priortype='uniform', interpreted as upper and lower bounds for each parameter
         If priortype='normal', interpreted as median and standard deviation of each parameter's gaussian prior
         If priortype='gamma', interpreted as the shape parameter and the scale parameter of a gamma distribution
         
-    noise : float or array_like, optional
+    noise : float or array, optional
         The standard deviation of the noise in the data. If a single float is provided, 
         it is broadcast to match the shape of `data`. Default is 1.0.
         
-    sample : array_like of bool, optional
+    sample : array of bool, optional
         Boolean array indicating which parameters to sample. Default is to sample all parameters.
     
     priortype : string OR list of strings, optional (default='uniform')
@@ -71,7 +71,7 @@ class MCMCWrapper:
 
                 Parameters
                 ----------
-                params : array_like
+                params : array
                     Array of parameter values.
 
                 Returns
@@ -101,7 +101,7 @@ class MCMCWrapper:
 
                     Parameters
                     ----------
-                    params : array_like
+                    params : array
                         Array of parameter values.
 
                     Returns
@@ -122,7 +122,7 @@ class MCMCWrapper:
 
                     Parameters
                     ----------
-                    params : array_like
+                    params : array
                         Array of parameter values.
 
                     Returns
@@ -143,7 +143,7 @@ class MCMCWrapper:
 
                     Parameters
                     ----------
-                    params : array_like
+                    params : array
                         Array of parameter values.
 
                     Returns
@@ -169,7 +169,7 @@ class MCMCWrapper:
 
         Parameters
         ----------
-        params : array_like
+        params : array
             Array of parameter values.
 
         Returns
@@ -187,7 +187,7 @@ class MCMCWrapper:
 
         Parameters
         ----------
-        params : array_like
+        params : array
             Array of parameter values.
 
         Returns
