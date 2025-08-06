@@ -2,6 +2,7 @@ import numpy as np
 import emcee
 import matplotlib.pyplot as plt
 from scipy.special import gamma as gamma
+import corner
 
 class MCMCWrapper:
     """
