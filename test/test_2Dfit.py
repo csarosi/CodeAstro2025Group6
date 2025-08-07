@@ -8,7 +8,7 @@ def test_fit_2D():
     def model(pars, x):
         x0, x1 = x
         a, b, c, d = pars
-        return np.exp(-(x0 - a)/(b**2)) * np.exp(-(x1-c)**2/(d**2))
+        return np.exp(-(x0 - a)**2/(b**2)) * np.exp(-(x1-c)**2/(d**2))
 
     true_params = np.array([1.0, 5.0, 1.0, 5.0])
     x0_data = np.linspace(-5, 5, 100)
