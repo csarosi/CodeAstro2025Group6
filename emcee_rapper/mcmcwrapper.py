@@ -104,9 +104,11 @@ class MCMCWrapper:
                     elif self.priortype[i] == "gamma":
                         Ps[i] = 1/(gamma(self.priorvars[i][0]) * self.priorvars[i][1]**self.priorvars[i][0]) * \
                          params[i]**(self.priorvars[i][0]-1) * np.exp(-params[i]/self.priorvars[i][1])
+                        if params[i] < 0:
+                            Ps[i]=0.0
                     else:
                         raise Exception("The three options for priortype are 'uniform', 'normal', and 'gamma'")
-                logP = np.nansum(np.where(Ps>0,np.log(Ps),np.nan))
+                logP = np.sum(np.where(Ps>0,np.log(Ps),-np.inf))
                 return logP, Ps
         else:
             if self.priortype=='uniform':
@@ -170,6 +172,9 @@ class MCMCWrapper:
                     logPs = [1/(gamma(self.priorvars[i][0]) * self.priorvars[i][1]**self.priorvars[i][0]) * \
                             params[i]**(self.priorvars[i][0]-1) * np.exp(-params[i]/self.priorvars[i][1])\
                                 for i in range(self.npars)]
+                    for i in range(self.npars):
+                        if params[i] < 0.0:
+                            logPs[i] = 0.0
                     logP = np.sum(np.log(logPs))
                     return logP, logPs
 
