@@ -16,27 +16,27 @@ def dummy_model(params, x):
          lambda s: uniform.rvs(loc=-1, scale=2, size=s),
          lambda s: uniform.rvs(loc=2, scale=2, size=s),
      ]),
-    #("normal",
-     #[[[0, 1]], [[-2, 2]], [[2, 3]]],
-     #[
-     #    lambda s: norm.rvs(loc=0, scale=1, size=s),
-     #    lambda s: norm.rvs(loc=0, scale=2, size=s),
-     #    lambda s: norm.rvs(loc=2, scale=3, size=s),
-     #]),
-    #("gamma",
-     #[[[2, 2]], [[5, 1]], [[9, 0.5]]],
-     #[
-     #    lambda s: gamma.rvs(a=2, scale=2, size=s),
-     #    lambda s: gamma.rvs(a=5, scale=1, size=s),
-     #    lambda s: gamma.rvs(a=9, scale=0.5, size=s),
-     #]),
+    ("normal",
+     [[[0, 1]], [[-2, 2]], [[2, 3]]],
+     [
+        lambda s: norm.rvs(loc=0, scale=1, size=s),
+        lambda s: norm.rvs(loc=-2, scale=2, size=s),
+        lambda s: norm.rvs(loc=2, scale=3, size=s),
+     ]),
+    ("gamma",
+     [[[1, 1]], [[5, 1]], [[9, 0.5]]],
+     [
+        lambda s: gamma.rvs(a=1, scale=1, size=s),
+        lambda s: gamma.rvs(a=5, scale=1, size=s),
+        lambda s: gamma.rvs(a=9, scale=0.5, size=s),
+     ]),
 ])
 def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
     """
     Test that sample_priors generates distributions matching expected priors.
     KS test for distribution similarity.
     """
-    nsamples = 10000
+    nsamples = 100000
     data = np.zeros(10)
     x = np.zeros(10)
     parnames = ["param"]
@@ -60,9 +60,17 @@ def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
         expected = dist_fn(nsamples)
 
         # Compare mean and std
-        np.testing.assert_allclose(np.mean(sampled), np.mean(expected), rtol=0.1)
-        np.testing.assert_allclose(np.std(sampled), np.std(expected), rtol=0.1)
+        np.testing.assert_allclose(np.mean(sampled), np.mean(expected), atol=0.1)
+        np.testing.assert_allclose(np.std(sampled), np.std(expected), atol=0.1)
 
         # KS test
         ks_stat, ks_pvalue = ks_2samp(sampled, expected)
         assert ks_pvalue > 0.05, f"KS test failed for {priortype} with bounds {bounds}"
+
+# test_sample_priors_distribution("gamma",
+#      [[[1, 1]], [[5, 1]], [[9, 0.5]]],
+#      [
+#         lambda s: gamma.rvs(a=1, scale=1, size=s),
+#         lambda s: gamma.rvs(a=5, scale=1, size=s),
+#         lambda s: gamma.rvs(a=9, scale=0.5, size=s),
+#      ])
