@@ -1,3 +1,4 @@
 emcee
 numpy
 corner
+scipy
