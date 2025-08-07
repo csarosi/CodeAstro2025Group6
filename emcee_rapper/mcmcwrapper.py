@@ -55,7 +55,7 @@ class MCMCWrapper:
         self.data = np.array(data)
         self.x = np.array(x)
         self.sampleparams = np.ones(len(varnames), dtype=bool) if sampleparams is None else np.array(sampleparams)
-        assert len(varnames) == len(varvalues) == len(sampleparams), "your parameter inputs are not all the same length!"
+        assert len(varnames) == len(varvalues) == len(self.sampleparams), "your parameter inputs are not all the same length!"
         
         varnames =  np.array(varnames)
         self.parnames = varnames[self.sampleparams]

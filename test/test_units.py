@@ -29,13 +29,15 @@ def fit_test_2D():
         model_function=model,
         data=y_obs,
         x=coords,
-        parnames=parnames,
-        initial_values=initial_guess,
-        prior_bounds=prior_bounds,
+        varnames=parnames,
+        varvalues=initial_guess,
+        priorvars=prior_bounds,
         noise=noise_std,
         priortype=['uniform', 'uniform', 'uniform', 'uniform']
         # priortype='normal'
     )
+
+    
 
     sampler = wrapper.run_mcmc(nwalkers=30, nsteps=1000)
     samples = sampler.get_chain(discard=200, thin=15, flat=True)
