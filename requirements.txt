@@ -2,3 +2,4 @@ emcee
 numpy
 corner
 scipy
+tqdm
