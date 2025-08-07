@@ -63,6 +63,6 @@ def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
         np.testing.assert_allclose(np.mean(sampled), np.mean(expected), rtol=0.1)
         np.testing.assert_allclose(np.std(sampled), np.std(expected), rtol=0.1)
 
-        # Kolmogorov–Smirnov test
+        # KS test
         ks_stat, ks_pvalue = ks_2samp(sampled, expected)
         assert ks_pvalue > 0.05, f"KS test failed for {priortype} with bounds {bounds}"
