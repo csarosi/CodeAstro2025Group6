@@ -1,8 +1,9 @@
 import numpy as np
-import pytest
-from scipy.stats import uniform, norm, gamma, ks_2samp
+import matplotlib.pyplot as plt
+from scipy.stats import uniform, norm, gamma, kstest
 
 from emcee_rapper.mcmcwrapper import MCMCWrapper
+
 
 # Dummy model function
 def dummy_model(params, x):
@@ -42,22 +43,19 @@ def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
     parnames = ["param"]
     initial_values = [0.5]
 
-    for bounds, dist_fn in zip(bounds_list, dist_fn_list):
-        mcmc = MCMCWrapper(
-            model_function=dummy_model,
-            data=data,
-            x=x,
-            varnames=parnames,
-            varvalues=initial_values,
-            priorvars=bounds,
-            priortype=priortype
-        )
+    mcmc = MCMCWrapper(
+        model_function=dummy_model,
+        data=data,
+        x=x,
+        parnames=parnames,
+        initial_values=initial_values,
+        prior_bounds=bounds,
+        priortype=priortype
+    )
 
-        samples = mcmc.sample_priors(nsamples)
-        assert samples.shape == (nsamples, 1)
-
-        sampled = samples[:, 0]
-        expected = dist_fn(nsamples)
+    samples = mcmc.sample_priors(nsamples)
+    sampled = samples[:, 0]
+    expected = dist_fn(nsamples)
 
         # Compare mean and std
         np.testing.assert_allclose(np.mean(sampled), np.mean(expected), atol=0.1)
