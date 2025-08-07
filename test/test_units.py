@@ -43,7 +43,6 @@ def fit_test_2D():
     medians = np.median(samples, axis=0)
     lower = np.percentile(samples, 16, axis=0)
     upper = np.percentile(samples, 84, axis=0)
-    # print(lower, true_params, upper)
     assert (np.array([lower[i] < true_params[i] < upper[i] for i in range(wrapper.npars)])).all()
     pass
 
