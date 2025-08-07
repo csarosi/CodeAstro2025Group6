@@ -2,6 +2,7 @@ import numpy as np
 import emcee
 import matplotlib.pyplot as plt
 from scipy.special import gamma as gamma
+from scipy.interpolate import interp1d as interp1d
 import corner
 
 class MCMCWrapper:
@@ -79,20 +80,21 @@ class MCMCWrapper:
                 float
                     The log-prior probability.
                 """
-                logPs = np.zeros(self.npars)
+                Ps = np.zeros(self.npars)
                 for i in range(len(priortype)):
                     if self.priortype[i] == "uniform":
+                        Ps[i] = 1.0
                         for i in range(self.npars):
-                            if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
-                                logPs[i] = -np.inf
+                            if (params[i] <= self.bounds[i][0]) or (params[i] >= self.bounds[i][1]):
+                                Ps[i] = 0.0
                     elif self.priortype[i] == "normal":
-                        logPs[i] = np.log(1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
-                         np.exp((params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2)))
+                        Ps[i] = 1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
+                         np.exp(-(params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2))
                     elif self.priortype[i] == "gamma":
-                        logPs[i] = np.log(1/(gamma(self.bounds[i][0]) * self.bounds[i][1]**self.bounds[i][0]) * \
-                         params[i]**(self.bounds[i][0]-1) * np.exp(-params[i]/self.bounds[i][1]))
-                logP = np.sum(logPs)
-                return logP, logPs
+                        Ps[i] = 1/(gamma(self.bounds[i][0]) * self.bounds[i][1]**self.bounds[i][0]) * \
+                         params[i]**(self.bounds[i][0]-1) * np.exp(-params[i]/self.bounds[i][1])
+                logP = np.sum(np.log(Ps))
+                return logP, Ps
         else:
             if self.priortype=='uniform':
                 def log_prior(params):
@@ -111,7 +113,7 @@ class MCMCWrapper:
                     """
                     logPs = np.zeros(self.npars)
                     for i in range(self.npars):
-                        if (params[i] < self.bounds[i][0]) or (params[i] > self.bounds[i][1]):
+                        if (params[i] <= self.bounds[i][0]) or (params[i] >= self.bounds[i][1]):
                             logPs[i] = -np.inf
                     logP = np.sum(logPs)
                     return logP, logPs
@@ -132,7 +134,7 @@ class MCMCWrapper:
                         The log-prior probability.
                     """
                     logPs = [1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
-                            np.exp((params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2)) \
+                            np.exp(-(params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2)) \
                                 for i in range(self.ndim)]
                     logP = np.sum(np.log(logPs))
                     return logP, logPs
@@ -347,4 +349,26 @@ class MCMCWrapper:
         """
         samples = np.empty((nsamples, self.npars))
         for i in range(self.npars):
-            for n in range(nsamples):
+            if type(self.priortype) != str:
+                priortype = self.priortype[i]
+            else:
+                priortype = self.priortype
+            if priortype == 'uniform':
+                samples[:,i] = np.random.rand(nsamples) * (self.bounds[i][1] - self.bounds[i][0]) + self.bounds[i][0]
+            else:
+                xbnds = self.bounds[i][0] - 5 * self.bounds[i][1], self.bounds[i][0] + 5 * self.bounds[i][1]
+                x = np.linspace(xbnds[0], xbnds[1], 10000)
+                Ps_of_x = []
+                for j in range(len(x)):
+                    params = np.zeros(self.ndim)
+                    params[i] = x[j]
+                    P = self.log_prior(params)[1][i]
+                    Ps_of_x.append(P)
+                cdf = np.cumsum(Ps_of_x)
+                cdf /= cdf[-1]
+                interpolant = interp1d(cdf,x,bounds_error=False, fill_value=xbnds)
+                for n in range(nsamples):
+                    samp = np.random.rand()
+                    samples[n,i] = interpolant(samp)
+        return samples
+
