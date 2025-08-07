@@ -47,9 +47,9 @@ def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
             model_function=dummy_model,
             data=data,
             x=x,
-            parnames=parnames,
-            initial_values=initial_values,
-            prior_bounds=bounds,
+            varnames=parnames,
+            varvalues=initial_values,
+            priorvars=bounds,
             priortype=priortype
         )
 
