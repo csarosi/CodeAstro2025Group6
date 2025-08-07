@@ -7,6 +7,7 @@ from emcee_rapper.mcmcwrapper import MCMCWrapper
 # Dummy model function
 def dummy_model(params, x):
     return np.zeros_like(x)
+np.random.seed(4)
 
 @pytest.mark.parametrize("priortype, bounds_list, dist_fn_list", [
     ("uniform",
