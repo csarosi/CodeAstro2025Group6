@@ -1,7 +1,9 @@
 import emcee_rapper.mcmcwrapper as rap
 import numpy as np
+import warnings
+warnings.filterwarnings('ignore')
 
-def fit_test_2D():
+def test_fit_2D():
     """Test that the code can fit a 2D gaussian with no noise"""
     def model(pars, x):
         x0, x1 = x
@@ -49,4 +51,4 @@ def fit_test_2D():
     assert (np.array([lower[i] < true_params[i] < upper[i] for i in range(wrapper.npars)])).all()
     pass
 
-fit_test_2D()
+test_fit_2D()
