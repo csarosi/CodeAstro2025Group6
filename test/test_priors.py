@@ -3,6 +3,10 @@ import pytest
 from scipy.stats import uniform, norm, gamma
 from emcee_rapper.mcmcwrapper import MCMCWrapper
 
+# Dummy model function
+def dummy_model(params, x):
+    return np.zeros_like(x)
+
 @pytest.mark.parametrize("priortype, bounds, dist_fn", [
     ("uniform", [[0, 1]], lambda s: uniform.rvs(loc=0, scale=1, size=s)),
     ("normal", [[0, 1]], lambda s: norm.rvs(loc=0, scale=1, size=s)),
