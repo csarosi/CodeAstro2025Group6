@@ -26,9 +26,9 @@ def test_sample_priors_distribution(priortype, bounds, dist_fn):
         model_function=dummy_model,
         data=data,
         x=x,
-        parnames=parnames,
-        initial_values=initial_values,
-        prior_bounds=bounds,
+        varnames=parnames,
+        varvalues=initial_values,
+        priorvars=bounds,
         priortype=priortype
     )
 
@@ -39,5 +39,5 @@ def test_sample_priors_distribution(priortype, bounds, dist_fn):
     expected = dist_fn(nsamples)
 
     # Test that sampled and expected distributions have similar mean and std
-    np.testing.assert_allclose(np.mean(sampled), np.mean(expected), rtol=0.1)
-    np.testing.assert_allclose(np.std(sampled), np.std(expected), rtol=0.1)
+    np.testing.assert_allclose(np.mean(sampled), np.mean(expected), atol=0.1)
+    np.testing.assert_allclose(np.std(sampled), np.std(expected), atol=0.1)

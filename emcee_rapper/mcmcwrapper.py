@@ -25,13 +25,13 @@ class MCMCWrapper:
     x : array
         Independent variable(s) corresponding to the observed data.
         
-    parnames : list of str
+    varnames : list of str
         Names of the parameters to be sampled.
         
-    initial_values : array
+    varvalues : array
         Initial guesses for the model parameters.
         
-    prior_bounds : array
+    priorvars : array
         List of [min, max] pairs for each parameter, specifying uniform prior bounds.
         If priortype='uniform', interpreted as upper and lower bounds for each parameter
         If priortype='normal', interpreted as median and standard deviation of each parameter's gaussian prior

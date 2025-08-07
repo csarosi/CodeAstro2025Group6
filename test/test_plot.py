@@ -24,9 +24,9 @@ def test_plot():
         model_function=linear_fit,
         data=y_obs,
         x=x_data,
-        parnames=parnames,
-        initial_values=initial_guess,
-        prior_bounds=prior_bounds,
+        varnames=parnames,
+        varvalues=initial_guess,
+        priorvars=prior_bounds,
         noise=noise_std
     )
 
