@@ -369,7 +369,10 @@ class MCMCWrapper:
             if priortype == 'uniform':
                 samples[:,i] = np.random.rand(nsamples) * (self.priorvars[i][1] - self.priorvars[i][0]) + self.priorvars[i][0]
             else:
-                xbnds = self.priorvars[i][0] - 5 * self.priorvars[i][1], self.priorvars[i][0] + 5 * self.priorvars[i][1]
+                if priortype=='normal':
+                    xbnds = self.priorvars[i][0] - 5 * self.priorvars[i][1], self.priorvars[i][0] + 5 * self.priorvars[i][1]
+                elif priortype=='gamma':
+                    xbnds = 0, self.priorvars[i][0]*5
                 x = np.linspace(xbnds[0], xbnds[1], 10000)
                 Ps_of_x = []
                 for j in range(len(x)):

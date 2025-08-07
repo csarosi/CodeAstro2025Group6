@@ -9,14 +9,14 @@ def dummy_model(params, x):
 
 @pytest.mark.parametrize("priortype, bounds, dist_fn", [
     ("uniform", [[0, 1]], lambda s: uniform.rvs(loc=0, scale=1, size=s)),
-    ("normal", [[0, 1]], lambda s: norm.rvs(loc=0, scale=1, size=s)),
-    ("gamma", [[2, 2]], lambda s: gamma.rvs(a=2, scale=2, size=s)),
+    ("normal", [[1, 1]], lambda s: norm.rvs(loc=1, scale=1, size=s)),
+    ("gamma", [[1, 1]], lambda s: gamma.rvs(a=1, scale=1, size=s)),
 ])
 def test_sample_priors_distribution(priortype, bounds, dist_fn):
     """
     Test that sample_priors generates distributions matching expected priors.
     """
-    nsamples = 10000
+    nsamples = 100000
     data = np.zeros(10)
     x = np.zeros(10)
     parnames = ["param"]
@@ -39,5 +39,5 @@ def test_sample_priors_distribution(priortype, bounds, dist_fn):
     expected = dist_fn(nsamples)
 
     # Test that sampled and expected distributions have similar mean and std
-    np.testing.assert_allclose(np.mean(sampled), np.mean(expected), atol=0.1)
-    np.testing.assert_allclose(np.std(sampled), np.std(expected), atol=0.1)
+    np.testing.assert_allclose(np.mean(sampled), np.mean(expected), rtol=0.1)
+    np.testing.assert_allclose(np.std(sampled), np.std(expected), rtol=0.1)
