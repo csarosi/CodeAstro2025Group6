@@ -8,8 +8,10 @@ All you need to start is some data (any dimensionality works) and a function tha
 
 Once you have run your models, you can call the built-in walker and corner plots 
 
-![](https://github.com/csarosi/emcee_rapper/blob/main/readme_images/Corner_linear.png "Example Walker Plot")
+![](https://github.com/csarosi/emcee_rapper/blob/main/readme_images/MarkovChains_linear.png "Example Walker Plot")
 
-![](https://github.com/csarosi/emcee_rapper/blob/main/readme_images/MarkovChains_linear.png "Example Corner Plot")
+![](https://github.com/csarosi/emcee_rapper/blob/main/readme_images/Corner_linear.png "Example Corner Plot")
+
+
 
 
