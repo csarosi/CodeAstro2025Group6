@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_test():
+def test_plot():
     """Test that the code do all the plotting."""
     def linear_fit(pars, x):
         m, b0 = pars
@@ -49,5 +49,5 @@ def plot_test():
 
     assert sampler is not None
     pass
-
-plot_test()
+    
+test_plot()
