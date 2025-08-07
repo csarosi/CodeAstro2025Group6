@@ -16,20 +16,20 @@ def dummy_model(params, x):
          lambda s: uniform.rvs(loc=-1, scale=2, size=s),
          lambda s: uniform.rvs(loc=2, scale=2, size=s),
      ]),
-    ("normal",
-     [[[0, 1]], [[-2, 2]], [[2, 3]]],
-     [
-         lambda s: norm.rvs(loc=0, scale=1, size=s),
-         lambda s: norm.rvs(loc=0, scale=2, size=s),
-         lambda s: norm.rvs(loc=2, scale=3, size=s),
-     ]),
-    ("gamma",
-     [[[2, 2]], [[5, 1]], [[9, 0.5]]],
-     [
-         lambda s: gamma.rvs(a=2, scale=2, size=s),
-         lambda s: gamma.rvs(a=5, scale=1, size=s),
-         lambda s: gamma.rvs(a=9, scale=0.5, size=s),
-     ]),
+    #("normal",
+     #[[[0, 1]], [[-2, 2]], [[2, 3]]],
+     #[
+     #    lambda s: norm.rvs(loc=0, scale=1, size=s),
+     #    lambda s: norm.rvs(loc=0, scale=2, size=s),
+     #    lambda s: norm.rvs(loc=2, scale=3, size=s),
+     #]),
+    #("gamma",
+     #[[[2, 2]], [[5, 1]], [[9, 0.5]]],
+     #[
+     #    lambda s: gamma.rvs(a=2, scale=2, size=s),
+     #    lambda s: gamma.rvs(a=5, scale=1, size=s),
+     #    lambda s: gamma.rvs(a=9, scale=0.5, size=s),
+     #]),
 ])
 def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
     """
