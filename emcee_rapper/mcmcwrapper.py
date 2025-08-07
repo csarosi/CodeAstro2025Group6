@@ -49,19 +49,29 @@ class MCMCWrapper:
         if list, one of 'uniform', 'normal', and 'gamma' for each parameter.
     """
     
-    def __init__(self, model_function, data, x, parnames, initial_values,
-                 prior_bounds, noise=1.0, sample=None, priortype='uniform'):
+    def __init__(self, model_function, data, x, varnames, varvalues,
+                 priorvars,priortype='uniform', noise=1.0, sampleparams=None, ):
         self.model_function = model_function
         self.data = np.array(data)
         self.x = np.array(x)
-        self.parnames = parnames
-        self.p0 = np.array(initial_values)
-        self.bounds = np.array(prior_bounds)
-        self.ndim = len(parnames)
-        self.npars = len(parnames)
+        self.sampleparams = np.ones(len(varnames), dtype=bool) if sampleparams is None else np.array(sampleparams)
+        assert len(varnames) == len(varvalues) == len(sampleparams), "your parameter inputs are not all the same length!"
+        
+        varnames =  np.array(varnames)
+        self.parnames = varnames[self.sampleparams]
+        
+        self.parorder = np.concatenate((np.argwhere(self.sampleparams),np.argwhere(~self.sampleparams)))
+
+        varvalues =  np.array(varvalues)
+        self.fixedvals = varvalues[~self.sampleparams]
+        self.p0 = varvalues[self.sampleparams]
+       
+        self.npars = len(self.parnames)
         self.noise = noise * np.ones_like(self.data)
-        self.sample = np.ones(len(parnames), dtype=bool) if sample is None else sample
+
         self.priortype = priortype
+        self.priorvars=priorvars
+
         if type(self.priortype) != str:
             def log_prior(params):
                 """
@@ -84,16 +94,19 @@ class MCMCWrapper:
                 for i in range(len(priortype)):
                     if self.priortype[i] == "uniform":
                         Ps[i] = 1.0
+
                         for i in range(self.npars):
-                            if (params[i] <= self.bounds[i][0]) or (params[i] >= self.bounds[i][1]):
+                            if (params[i] <= self.priorvars[i][0]) or (params[i] >= self.priorvars[i][1]):
                                 Ps[i] = 0.0
                     elif self.priortype[i] == "normal":
-                        Ps[i] = 1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
-                         np.exp(-(params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2))
+                        Ps[i] = 1/np.sqrt(2*np.pi*self.priorvars[i][1]) * \
+                         np.exp(-(params[i]-self.priorvars[i][0])**2/(2*self.priorvars[i][1]**2))
                     elif self.priortype[i] == "gamma":
-                        Ps[i] = 1/(gamma(self.bounds[i][0]) * self.bounds[i][1]**self.bounds[i][0]) * \
-                         params[i]**(self.bounds[i][0]-1) * np.exp(-params[i]/self.bounds[i][1])
-                logP = np.sum(np.log(Ps))
+                        Ps[i] = 1/(gamma(self.priorvars[i][0]) * self.priorvars[i][1]**self.priorvars[i][0]) * \
+                         params[i]**(self.priorvars[i][0]-1) * np.exp(-params[i]/self.priorvars[i][1])
+                    else:
+                        raise Exception("The three options for priortype are 'uniform', 'normal', and 'gamma'")
+                logP = np.nansum(np.where(Ps>0,np.log(Ps),np.nan))
                 return logP, Ps
         else:
             if self.priortype=='uniform':
@@ -113,7 +126,7 @@ class MCMCWrapper:
                     """
                     logPs = np.zeros(self.npars)
                     for i in range(self.npars):
-                        if (params[i] <= self.bounds[i][0]) or (params[i] >= self.bounds[i][1]):
+                        if (params[i] <= self.priorvars[i][0]) or (params[i] >= self.priorvars[i][1]):
                             logPs[i] = -np.inf
                     logP = np.sum(logPs)
                     return logP, logPs
@@ -133,9 +146,9 @@ class MCMCWrapper:
                     float
                         The log-prior probability.
                     """
-                    logPs = [1/np.sqrt(2*np.pi*self.bounds[i][1]) * \
-                            np.exp(-(params[i]-self.bounds[i][0])**2/(2*self.bounds[i][1]**2)) \
-                                for i in range(self.ndim)]
+                    logPs = [1/np.sqrt(2*np.pi*self.priorvars[i][1]) * \
+                            np.exp(-(params[i]-self.priorvars[i][0])**2/(2*self.priorvars[i][1]**2)) \
+                                for i in range(self.npars)]
                     logP = np.sum(np.log(logPs))
                     return logP, logPs
             elif self.priortype=='gamma':
@@ -154,9 +167,9 @@ class MCMCWrapper:
                     float
                         The log-prior probability.
                     """
-                    logPs = [1/(gamma(self.bounds[i][0]) * self.bounds[i][1]**self.bounds[i][0]) * \
-                            params[i]**(self.bounds[i][0]-1) * np.exp(-params[i]/self.bounds[i][1])\
-                                for i in range(self.ndim)]
+                    logPs = [1/(gamma(self.priorvars[i][0]) * self.priorvars[i][1]**self.priorvars[i][0]) * \
+                            params[i]**(self.priorvars[i][0]-1) * np.exp(-params[i]/self.priorvars[i][1])\
+                                for i in range(self.npars)]
                     logP = np.sum(np.log(logPs))
                     return logP, logPs
 
@@ -164,7 +177,7 @@ class MCMCWrapper:
                 raise Exception("The three options for priortype are 'uniform', 'normal', and 'gamma'")
         self.log_prior = log_prior
 
-        assert len(self.p0) == len(self.bounds) == self.ndim, "your parameter inputs are not all the same length!"
+        assert len(self.p0) == len(self.priorvars) == self.npars, "your parameter inputs are not all the same length!"
 
     def log_likelihood(self, params):
         """
@@ -180,7 +193,7 @@ class MCMCWrapper:
         float
             The log-likelihood assuming Gaussian noise.
         """
-        y_model = self.model_function(params, self.x)
+        y_model = self.model_function(np.concatenate((params, self.fixedvals))[self.parorder], self.x)
         chi2 = np.sum((self.data - y_model) ** 2 / self.noise**2)
         return -0.5 * chi2
 
@@ -220,8 +233,8 @@ class MCMCWrapper:
         mcmc_sampler : emcee.EnsembleSampler
             The MCMC sampler object containing the full chain of samples.
         """
-        initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.ndim)
-        mcmc_sampler = emcee.EnsembleSampler(nwalkers, self.ndim, self.log_posterior)
+        initial_pos = self.p0 + 1e-4 * np.random.randn(nwalkers, self.npars)
+        mcmc_sampler = emcee.EnsembleSampler(nwalkers, self.npars, self.log_posterior)
         mcmc_sampler.run_mcmc(initial_pos, nsteps, progress=True)
         self.nwalkers = nwalkers
         self.nsteps = nsteps
@@ -240,7 +253,7 @@ class MCMCWrapper:
         
         return mcmc_sampler
     
-    def walker_plot(self, discard=200):
+    def walker_plot(self, discard=100):
         """
         Plot the evolution of MCMC walker chains for each parameter and the log-probability.
 
@@ -267,7 +280,7 @@ class MCMCWrapper:
         fig, axes = plt.subplots(self.npars + 1, figsize=(10, 7), sharex=True)
     
         # Create a list of labels: parameter names + one for log-probability
-        labels = self.parnames
+        labels = list(self.parnames)
         labels.append("log prob")  # This mutates self.parnames (not ideal, but kept as-is)
     
         # Extract the parameter chains, discarding the initial burn-in steps
@@ -310,7 +323,7 @@ class MCMCWrapper:
         # Display the figure
         plt.show()
     
-    def corner_plot(self, discard=200):
+    def corner_plot(self, discard=100):
         """
         Generate a corner plot of the MCMC samples after discarding initial steps (burn-in).
         
@@ -354,13 +367,13 @@ class MCMCWrapper:
             else:
                 priortype = self.priortype
             if priortype == 'uniform':
-                samples[:,i] = np.random.rand(nsamples) * (self.bounds[i][1] - self.bounds[i][0]) + self.bounds[i][0]
+                samples[:,i] = np.random.rand(nsamples) * (self.priorvars[i][1] - self.priorvars[i][0]) + self.priorvars[i][0]
             else:
-                xbnds = self.bounds[i][0] - 5 * self.bounds[i][1], self.bounds[i][0] + 5 * self.bounds[i][1]
+                xbnds = self.priorvars[i][0] - 5 * self.priorvars[i][1], self.priorvars[i][0] + 5 * self.priorvars[i][1]
                 x = np.linspace(xbnds[0], xbnds[1], 10000)
                 Ps_of_x = []
                 for j in range(len(x)):
-                    params = np.zeros(self.ndim)
+                    params = np.zeros(self.npars)
                     params[i] = x[j]
                     P = self.log_prior(params)[1][i]
                     Ps_of_x.append(P)
