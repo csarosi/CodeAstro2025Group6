@@ -37,7 +37,7 @@ def test_sample_priors_distribution(priortype, bounds_list, dist_fn_list):
     Test that sample_priors generates distributions matching expected priors.
     KS test for distribution similarity.
     """
-    nsamples = 10000
+    nsamples = 100000
     data = np.zeros(10)
     x = np.zeros(10)
     parnames = ["param"]
